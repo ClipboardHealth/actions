@@ -1,10 +1,10 @@
-# Clipboard Health shared Github Actions
+# CBH shared Github Actions
 
 You can find in this repository, all shared actions to do the most variables
 tasks, like build, lint, deploy and other stuff.
 
-If you think on copy and paste some github actions, please, think again and
-share your code with the hole company.
+If you tought on copy and paste some github actions, please, think again and
+share your code with everyone on Clipboard Health.
 
 ## Usage
 
@@ -19,3 +19,18 @@ jobs:
   secrets:
     some_input_secret: "${{ secrets.YOUR_STORED_SECRET }}"
 ```
+
+## Contributing
+
+Please install in your machine:
+
+- [pre-commit](https://pre-commit.com)
+- [actionlint](https://github.com/rhysd/actionlint/blob/main/docs/install.md)
+
+After clone, please activate pre-commit:
+
+```shell
+pre-commit install
+```
+
+Now you can create your actions on `.github/actions` folder.
