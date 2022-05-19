@@ -8,8 +8,8 @@ inputs:
     description: 'Environment name can be (production, staging, development, gamma-XXX)'
     required: true
   terraform_tag_list:
-    required: true
     description: 'A comma-separated list of desired tags'
+    required: true
   terraform_path:
     description: 'Location of terraform files in this repo'
     default: terraform
