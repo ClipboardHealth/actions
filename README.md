@@ -12,7 +12,7 @@ You can see all available actions in `workflows` path.
 
 ```yml
 jobs:
-  - uses: ClipboardHealth/actions/workflows/desired-workflow
+  - uses: ClipboardHealth/actions/.github/actions/desired-workflow
   with:
     some_input_parameter_1: parameter_value_1
     some_other_input_parameter: ${{ env.YOUR_VARIABLE }}
