@@ -1,29 +1,60 @@
+#!/bin/bash
+
+set -e
+
 TFC_URL_PREFIX="https://app.terraform.io/api/v2"
 TFC_WORKSPACES_URL="${TFC_URL_PREFIX}/organizations/clipboard-staffing/workspaces"
-HEADERS= <<EOF
---header "Authorization: Bearer ${TERRAFORM_TOKEN}"
---header "Content-Type: application/vnd.api+json"
+TFC_WORKSPACE_NAME="${SERVICE_NAME}-${ENVIRONMENT_NAME}"
+HDR_AUTH="Authorization: Bearer ${TERRAFORM_TOKEN}"
+HDR_CNTT="Content-Type: application/vnd.api+json"
+
+echo "Get existant workspace id"
+TFC_GET_WORKSPACE_URL="${TFC_WORKSPACES_URL}/${TFC_WORKSPACE_NAME}"
+curl -H "$HDR_AUTH" -H "$HDR_CNTT" -s "$TFC_GET_WORKSPACE_URL" -o workspace.json
+WORKSPACE_ID=$(cat workspace.json | jq -r .data.id)
+
+# Create a new workspace if doesn't exists
+if [ "$WORKSPACE_ID" = "null" ]; then
+  echo "Creating new workspace, since it doesn't exists"
+
+  cat <<EOF >new_workspace.json
+  {"data": {
+    "attributes": {"name": "${TFC_WORKSPACE_NAME}"},
+    "type": "workspaces"
+  }}
 EOF
 
-# Create a new workspace
-cat <<EOF >new_workspace.json
-{"data": {
-  "type": "workspaces",
-  "attributes": {"name": "${SERVICE_NAME}-${ENVIRONMENT_NAME}"}
-}}
-EOF
-curl $HEADERS --request POST -d @new_workspace.json "$TFC_WORKSPACES_URL"
+  curl -H "$HDR_AUTH" -H "$HDR_CNTT" -s \
+    --request POST -d @new_workspace.json \
+    -o workspace.json \
+    "$TFC_WORKSPACES_URL"
 
-# Get workspace id
-TFC_GET_WORKSPACE_URL="${TFC_WORKSPACES_URL}/${SERVICE_NAME}-${ENVIRONMENT_NAME}"
-WORKSPACE_ID=$(curl $HEADERS ${TFC_GET_WORKSPACE_URL} | jq -r ".[].id")
+  WORKSPACE_ID=$(cat workspace.json | jq -r .data.id)
+fi
 
-# Add tags to the workspace
-cat <<EOF >add_tag_json.json
-{"data": [
-  {"type": "tags", "attributes": {"name": "${TF_WORKSPACE}"}},
-  {"type": "tags", "attributes": {"name": "${SERVICE_NAME}"}}
-]}
-EOF
-TFC_ADD_TAG_URL="${TFC_URL_PREFIX}/workspaces/${WORKSPACE_ID}/relationships/tags"
-curl $HEADERS --request POST -d @add_tag_json.json $TFC_ADD_TAG_URL
+WORKSPACE_NAME=$(cat workspace.json | jq -r .data.attributes.name)
+WORKSPACE_TAGS=$(cat workspace.json | jq -r '.data.attributes["tag-names"][]' | sort)
+
+echo
+echo "Workspace name: $WORKSPACE_NAME"
+echo "Workspace ID:   $WORKSPACE_ID"
+echo
+
+COMMA_TAG_LIST="${TERRAFORM_TAG_LIST},${ENVIRONMENT_NAME},${SERVICE_NAME}"
+echo "$COMMA_TAG_LIST" | sed -n 1'p' | tr ',' '\n' | sort >tag_list.txt
+
+if [ "$(cat tag_list.txt)" != "$WORKSPACE_TAGS" ]; then
+  echo "Tags didn't match, update workspace tags"
+  while read tag; do
+    JSON_TAGS=$JSON_TAGS',{"type": "tags", "attributes": {"name": "'$tag'"}}'
+  done <tag_list.txt
+
+  TFC_ADD_TAG_URL="${TFC_URL_PREFIX}/workspaces/${WORKSPACE_ID}/relationships/tags"
+  echo "{\"data\": [${JSON_TAGS:1}]}" >workspace_tags.json
+  curl -H "$HDR_AUTH" -H "$HDR_CNTT" -s \
+    --request POST -d @workspace_tags.json \
+    $TFC_ADD_TAG_URL
+fi
+
+echo "Remove temporary files"
+rm $(dirname $0)/*.{json,txt}
