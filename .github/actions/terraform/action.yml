@@ -26,11 +26,12 @@ runs:
       run: echo "TF_WORKSPACE=${{ inputs.environment_name }}" >> $GITHUB_ENV
 
     - name: Create TFC Workspace
-      shell: bash
+      shell: sh
       env:
         SERVICE_NAME: ${{ inputs.service_name }}
         ENVIRONMENT_NAME: ${{ inputs.environment_name }}
         TERRAFORM_TOKEN: ${{ inputs.terraform_token }}
+        TERRAFORM_TAG_LIST: ${{ inputs.terraform_tag_list }}
       run: ${{ github.action_path }}/create-tfc-workspace.sh
 
     - uses: actions/checkout@v3
@@ -38,17 +39,20 @@ runs:
       with:
         cli_config_credentials_token: ${{ secrets.terraform_token }}
 
-    - name: Terraform fmt
+    - name: Terraform lint
       shell: bash
+      working-directory: ${{ inputs.terraform_path }}
       id: fmt
       run: terraform fmt -check
 
     - name: Terraform Init
       shell: bash
+      working-directory: ${{ inputs.terraform_path }}
       run: terraform init -input=false
 
     - name: Terraform Validate
       shell: bash
+      working-directory: ${{ inputs.terraform_path }}
       id: validate
       run: terraform validate -no-color
 

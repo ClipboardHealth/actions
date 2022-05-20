@@ -1,0 +1,23 @@
+name: Test terraform action
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  exec_action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a terraform workspace
+        uses: ClipboardHealth/actions/.github/actions/terraform@${{ github.event.pull_request.head.ref }}
+        with:
+          service_name: "tmp-cbh-test-terraform-creation"
+          environment_name: "branch-${{ github.event.pull_request.head.ref }}"
+          terraform_tag_list: "pipeline,temporary,must-be-erased"
+          terraform_path: ".github/actions/terraform/test/terraform"
+          terraform_token: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+      - name: Destroy previously created terraform workspace
+        shell: bash
+        run: .github/actions/terraform/destroy-tfc-workspace.sh
