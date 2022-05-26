@@ -10,14 +10,20 @@ jobs:
   exec_action:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+
       - name: Create a terraform workspace
-        uses: ClipboardHealth/actions/.github/actions/terraform@${{ github.event.pull_request.head.ref }}
+        uses: ./.github/actions/terraform
         with:
           service_name: "tmp-cbh-test-terraform-creation"
           environment_name: "branch-${{ github.event.pull_request.head.ref }}"
           terraform_tag_list: "pipeline,temporary,must-be-erased"
           terraform_path: ".github/actions/terraform/test/terraform"
           terraform_token: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+
       - name: Destroy previously created terraform workspace
-        shell: bash
+        env:
+          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
+          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}"
+          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
         run: .github/actions/terraform/destroy-tfc-workspace.sh
