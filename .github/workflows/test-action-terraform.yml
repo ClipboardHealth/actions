@@ -21,6 +21,10 @@ jobs:
           terraform_path: ".github/actions/terraform/test/terraform"
           terraform_token: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
 
+      - name: Destroy test resources from workspace
+        working-directory: .github/actions/terraform/test/terraform
+        run: terraform destroy --auto-approve
+
       - name: Destroy previously created terraform workspace
         env:
           SERVICE_NAME: "tmp-cbh-test-terraform-creation"
