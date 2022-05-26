@@ -1,3 +1,3 @@
 provider "fakewebservices" {
-  token = "any_token"
+  token = var.TOKEN
 }
