@@ -23,7 +23,11 @@ runs:
   steps:
     - name: 'Create TF_WORKSPACE variable'
       shell: bash
-      run: echo "TF_WORKSPACE=${{ inputs.environment_name }}" >> $GITHUB_ENV
+      env:
+        ENVIRONMENT_NAME: ${{ inputs.environment_name }}
+      run: |
+        ENVIRONMENT_NAME_SANITIZED=$(echo "$ENVIRONMENT_NAME" | tr '/' '-')
+        echo "TF_WORKSPACE=${ENVIRONMENT_NAME_SANITIZED}" >> $GITHUB_ENV
 
     - name: Create TFC Workspace
       shell: sh

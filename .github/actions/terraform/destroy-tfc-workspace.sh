@@ -2,7 +2,7 @@
 
 TFC_URL_PREFIX="https://app.terraform.io/api/v2"
 TFC_WORKSPACES_URL="${TFC_URL_PREFIX}/organizations/clipboard-staffing/workspaces"
-TFC_WORKSPACE_NAME="${SERVICE_NAME}-${ENVIRONMENT_NAME}"
+TFC_WORKSPACE_NAME="${SERVICE_NAME}-${TF_WORKSPACE}"
 HDR_AUTH="Authorization: Bearer ${TERRAFORM_TOKEN}"
 HDR_CNTT="Content-Type: application/vnd.api+json"
 
