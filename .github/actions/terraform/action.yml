@@ -1,0 +1,106 @@
+name: 'Prepare infrastructure'
+description: 'Creates terraform workspace'
+inputs:
+  service_name:
+    description: 'The service, usually repo name'
+    required: true
+  environment_name:
+    description: 'Environment name can be (production, staging, development, gamma-XXX)'
+    required: true
+  terraform_tag_list:
+    description: 'A comma-separated list of desired tags'
+    required: true
+  terraform_path:
+    description: 'Location of terraform files in this repo'
+    default: terraform
+    required: true
+  terraform_token:
+    description: 'Terraform Cloud Token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 'Create TF_WORKSPACE variable'
+      shell: bash
+      env:
+        ENVIRONMENT_NAME: ${{ inputs.environment_name }}
+      run: |
+        ENVIRONMENT_NAME_SANITIZED=$(echo "$ENVIRONMENT_NAME" | tr '/' '-')
+        echo "TF_WORKSPACE=${ENVIRONMENT_NAME_SANITIZED}" >> $GITHUB_ENV
+
+    - name: Create TFC Workspace
+      shell: sh
+      env:
+        SERVICE_NAME: ${{ inputs.service_name }}
+        ENVIRONMENT_NAME: ${{ inputs.environment_name }}
+        TERRAFORM_TOKEN: ${{ inputs.terraform_token }}
+        TERRAFORM_TAG_LIST: ${{ inputs.terraform_tag_list }}
+      run: ${{ github.action_path }}/create-tfc-workspace.sh
+
+    - uses: actions/checkout@v3
+    - uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ inputs.terraform_token }}
+
+    - name: Terraform lint
+      shell: bash
+      working-directory: ${{ inputs.terraform_path }}
+      id: fmt
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      shell: bash
+      working-directory: ${{ inputs.terraform_path }}
+      run: terraform init -input=false
+
+    - name: Terraform Validate
+      shell: bash
+      working-directory: ${{ inputs.terraform_path }}
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform apply
+      shell: bash
+      working-directory: ${{ inputs.terraform_path }}
+      run: terraform apply --auto-approve
+
+    - uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{ github.token }}
+        script: |
+          // 1. Retrieve existing bot comments for the PR
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          })
+          const botComment = comments.find(comment => {
+            return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+          })
+
+          // 2. Prepare format of the comment
+          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          <details><summary>Validation Output</summary>
+
+          \`\`\`\n
+          ${{ steps.validate.outputs.stdout }}
+          \`\`\`
+
+          </details>
+
+          *Action: \`${{ github.event_name }}\`, Working Directory: \`${{ inputs.terraform_path }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+          // 3. If we have a comment, update it, otherwise create a new one
+          const reqBody = {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          }
+          if (botComment) {
+            github.rest.issues.updateComment({...reqBody, comment_id: botComment.id})
+          } else {
+            github.rest.issues.createComment({...reqBody, issue_number: context.issue.number})
+          }
