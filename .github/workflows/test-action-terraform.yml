@@ -1,10 +1,9 @@
 name: Test terraform action
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+    paths:
+      - .github/actions/terraform
+      - .github/workflows/test-action-terraform.yml
 
 jobs:
   exec_action:
