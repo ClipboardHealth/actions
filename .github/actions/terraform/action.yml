@@ -37,7 +37,7 @@ runs:
       env:
         ENVIRONMENT_NAME: ${{ inputs.ENVIRONMENT_NAME }}
       run: |
-        ENVIRONMENT_NAME_SANITIZED=$(echo "$ENVIRONMENT_NAME" | tr '/' '-')
+        ENVIRONMENT_NAME_SANITIZED=$(echo "$ENVIRONMENT_NAME" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
         echo "TF_WORKSPACE=${ENVIRONMENT_NAME_SANITIZED}" >> $GITHUB_ENV
 
     - name: Create TFC Workspace
