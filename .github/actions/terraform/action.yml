@@ -21,6 +21,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Check dependencies
+      shell: sh
+      run: |
+        SUCCESS="Dependencies matched"
+        ERROR="Please install jq on your pipeline"
+        (which jq 2>&1 1>/dev/null && echo $SUCCESS && exit 0) || (echo $ERROR && exit 1)
+
     - name: "Create TF_WORKSPACE variable"
       shell: sh
       env:
