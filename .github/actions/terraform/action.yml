@@ -22,7 +22,7 @@ runs:
   using: "composite"
   steps:
     - name: "Create TF_WORKSPACE variable"
-      shell: bash
+      shell: sh
       env:
         ENVIRONMENT_NAME: ${{ inputs.environment_name }}
       run: |
@@ -44,24 +44,24 @@ runs:
         cli_config_credentials_token: ${{ inputs.terraform_token }}
 
     - name: Terraform lint
-      shell: bash
+      shell: sh
       working-directory: ${{ inputs.terraform_path }}
       id: fmt
       run: terraform fmt -check
 
     - name: Terraform Init
-      shell: bash
+      shell: sh
       working-directory: ${{ inputs.terraform_path }}
       run: terraform init -input=false
 
     - name: Terraform Validate
-      shell: bash
+      shell: sh
       working-directory: ${{ inputs.terraform_path }}
       id: validate
       run: terraform validate -no-color
 
     - name: Terraform apply
-      shell: bash
+      shell: sh
       working-directory: ${{ inputs.terraform_path }}
       run: terraform apply --auto-approve
 
