@@ -1,0 +1,60 @@
+name: "ECS deploy"
+description: "Deploys task definition on ECS cluster"
+
+inputs:
+  ENVIRONMENT:
+    description: "Environment name (qa, staging, production, ...)"
+    required: true
+  SERVICE_NAME:
+    description: "Service name"
+    required: true
+  IMAGE_NAME:
+    description: "Docker image name (full image name)"
+    required: true
+  AWS_GITHUB_ROLE_ARN:
+    description: "AWS github role ARN. Can be this secret: AWS_GITHUB_ROLE_ARN"
+    required: true
+  AWS_REGION:
+    description: "AWS region to deploy"
+    default: "us-west-2"
+    required: true
+  TASK_DEFINITION_PATH:
+    description: "Path to task-definition.json file"
+    required: true
+  APPSPEC_PATH:
+    description: "Path to appspec.json file"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - shell: sh
+      env:
+        FULL_SERVICE_NAME: cbh-${{ inputs.SERVICE_NAME }}-${{ inputs.ENVIRONMENT }}
+      run: echo "APPLICATION_NAME=${FULL_SERVICE_NAME}" >> $GITHUB_ENV
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        role-to-assume: ${{ inputs.AWS_GITHUB_ROLE_ARN }}
+        aws-region: ${{ inputs.AWS_REGION }}
+
+    - name: Render ECS task definition
+      id: ecs-taskdef
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ inputs.TASK_DEFINITION_PATH }}
+        container-name: ${{ env.APPLICATION_NAME }}
+        image: ${{ inputs.IMAGE_NAME }}
+
+    - name: Deploy to Amazon ECS
+      id: ecs-deploy
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.ecs-taskdef.outputs.task-definition }}
+        service: "${{ env.APPLICATION_NAME }}"
+        cluster: cbh-${{ inputs.ENVIRONMENT }}-cluster
+        codedeploy-appspec: ${{ inputs.APPSPEC_PATH }}
+        codedeploy-application: "${{ env.APPLICATION_NAME }}"
+        codedeploy-deployment-group: "${{ env.APPLICATION_NAME }}-deploymentgroup"
+        wait-for-service-stability: true

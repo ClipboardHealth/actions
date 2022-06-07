@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        action_path: ["terraform"]
+        action_path: ["terraform", "deploy-ecs"]
     steps:
       - uses: actions/checkout@v3
         with:

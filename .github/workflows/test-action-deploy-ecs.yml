@@ -1,0 +1,54 @@
+name: Test ECS deploy action
+on:
+  pull_request:
+    paths:
+      - .github/actions/deploy-ecs
+      - .github/workflows/test-action-deploy-ecs.yml
+
+env:
+  SERVICE_NAME: "tmp-cbh-test-deploy-ecs"
+  ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}"
+  REGION: "us-west-2"
+
+jobs:
+  exec_action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create a terraform workspace
+        uses: ./.github/actions/terraform
+        with:
+          service_name: ${{ env.SERVICE_NAME }}
+          environment_name: ${{ env.ENVIRONMENT_NAME }}
+          terraform_tag_list: "pipeline,temporary,must-be-erased"
+          terraform_path: ".github/actions/deploy-ecs/test/terraform"
+          terraform_token: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          aws-region: ${{ env.REGION }}
+
+      - name: ECS deploy
+        uses: ./.github/actions/deploy-ecs
+        with:
+          ENVIRONMENT: ${{ env.ENVIRONMENT_NAME }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          IMAGE_NAME: nginx:stable-alpine
+          AWS_GITHUB_ROLE_ARN: ${{ secrets.AWS_GITHUB_ROLE_ARN }}
+          AWS_REGION: ${{ env.REGION }}
+          TASK_DEFINITION_PATH: ".github/actions/deploy-ecs/test/task-definition.json"
+          APPSPEC_PATH: ".github/actions/deploy-ecs/test/appspec.json"
+
+      # - name: Destroy test resources from workspace
+      #   working-directory: .github/actions/deploy-ecs/test/terraform
+      #   run: terraform destroy --auto-approve
+
+      # - name: Destroy previously created terraform workspace
+      #   env:
+      #     SERVICE_NAME: ${{ env.SERVICE_NAME }}
+      #     ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
+      #     TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+      #   run: .github/actions/terraform/destroy-tfc-workspace.sh

@@ -1,0 +1,18 @@
+{
+  "version": 0,
+  "Resources": [
+    {
+      "TargetService": {
+        "Type": "AWS::ECS::Service",
+        "Properties": {
+          "TaskDefinition": "--configured by github actions--",
+          "PlatformVersion": "LATEST"
+        },
+        "LoadBalancerInfo": {
+          "ContainerName": "actions-cicd-ecs-deploy-test",
+          "ContainerPort": 80
+        }
+      }
+    }
+  ]
+}

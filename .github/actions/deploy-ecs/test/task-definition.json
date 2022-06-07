@@ -1,0 +1,23 @@
+{
+  "family": "actions-cicd-ecs-deploy-test",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "100",
+  "memory": "128",
+  "containerDefinitions": [
+    {
+      "name": "actions-cicd-ecs-deploy-test",
+      "image": "--configured by github actions--",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "protocol": "tcp",
+          "containerPort": 80
+        }
+      ]
+    }
+  ]
+}
