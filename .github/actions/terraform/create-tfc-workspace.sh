@@ -40,7 +40,7 @@ echo "Workspace tags: $WORKSPACE_TAGS"
 echo
 
 COMMA_TAG_LIST="${TERRAFORM_TAG_LIST},${ENVIRONMENT_NAME},${SERVICE_NAME}"
-echo "$COMMA_TAG_LIST" | sed -n 1'p' | tr ',' '\n' | sort >tag_list.txt
+echo "$COMMA_TAG_LIST" | sed -n 1'p' | tr ',' '\n' | tr '/' '-' | sort >tag_list.txt
 
 if [ "$(cat tag_list.txt)" != "$WORKSPACE_TAGS" ]; then
   echo "Tags didn't match, update workspace tags to: ${COMMA_TAG_LIST}"
@@ -57,4 +57,3 @@ if [ "$(cat tag_list.txt)" != "$WORKSPACE_TAGS" ]; then
 fi
 
 echo "Remove temporary files"
-rm $(dirname $0)/*.{json,txt} || echo
