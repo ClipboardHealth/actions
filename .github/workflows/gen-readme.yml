@@ -22,7 +22,7 @@ jobs:
 
       - id: check-readme
         run: |
-          DIFF=$(git diff --exit-code --name-only .github/actions/terraform/README.md)
+          DIFF=$(git diff --name-only .github/actions/terraform/README.md)
           CHANGED=$([ "${DIFF}" = "" ] && echo false || echo true)
           echo "::set-output name=changed::${CHANGED}"
 
