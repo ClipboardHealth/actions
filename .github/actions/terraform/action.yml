@@ -17,6 +17,10 @@ inputs:
   TERRAFORM_TOKEN:
     description: "Terraform Cloud Token"
     required: true
+  TERRAFORM_VAR_PATH:
+    description: "A path to .tfvars file."
+    default: ""
+    required: false
 
 runs:
   using: "composite"
@@ -49,6 +53,20 @@ runs:
     - uses: hashicorp/setup-terraform@v1
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_TOKEN }}
+
+    - name: Prepare custom terraform variables
+      shell: sh
+      env:
+        TERRAFORM_PATH: ${{ inputs.TERRAFORM_PATH }}
+        TERRAFORM_VAR_PATH: ${{ inputs.TERRAFORM_VAR_PATH }}
+      run: |
+        DEST="generated.auto.tfvars"
+        if [ "$TERRAFORM_VAR_PATH" != "" ]; then
+          echo "Customized variables will be copied to ${DEST}"
+          cp -v "$TERRAFORM_VAR_PATH" "${TERRAFORM_PATH}/${DEST}"
+        else
+          echo "No custom variable file provided."
+        fi
 
     - name: Terraform lint
       shell: sh

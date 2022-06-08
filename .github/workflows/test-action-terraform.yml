@@ -19,6 +19,7 @@ jobs:
           TERRAFORM_TAG_LIST: "pipeline,temporary,must-be-erased"
           TERRAFORM_PATH: ".github/actions/terraform/test/terraform"
           TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          TERRAFORM_VAR_PATH: ".github/actions/terraform/test/terraform/test.tfvars"
 
       - name: Destroy test resources from workspace
         working-directory: .github/actions/terraform/test/terraform
