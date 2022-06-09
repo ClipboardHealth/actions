@@ -40,20 +40,20 @@ echo "Workspace tags: $WORKSPACE_TAGS"
 echo
 
 COMMA_TAG_LIST="${TERRAFORM_TAG_LIST},${ENVIRONMENT_NAME},${SERVICE_NAME}"
-echo "$COMMA_TAG_LIST" | sed -n 1'p' | tr ',' '\n' | sort >tag_list.txt
+echo "$COMMA_TAG_LIST" | sed -n 1'p' | tr ',' '\n' | tr '/' '-' | sort >tag_list.txt
 
 if [ "$(cat tag_list.txt)" != "$WORKSPACE_TAGS" ]; then
-  echo "Tags didn't match, update workspace tags"
+  echo "Tags didn't match, update workspace tags to: ${COMMA_TAG_LIST}"
   while read tag; do
     JSON_TAGS=$JSON_TAGS',{"type": "tags", "attributes": {"name": "'$tag'"}}'
   done <tag_list.txt
 
   TFC_ADD_TAG_URL="${TFC_URL_PREFIX}/workspaces/${WORKSPACE_ID}/relationships/tags"
   echo "{\"data\": [${JSON_TAGS:1}]}" >workspace_tags.json
+  echo "::debug::Workspace tags payload: $(cat workspace_tags.json)"
   curl -H "$HDR_AUTH" -H "$HDR_CNTT" -s \
     --request POST -d @workspace_tags.json \
     $TFC_ADD_TAG_URL
 fi
 
 echo "Remove temporary files"
-rm $(dirname $0)/*.{json,txt} || echo

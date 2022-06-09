@@ -13,11 +13,12 @@ Creates terraform workspace
 
 | parameter | description | required | default |
 | - | - | - | - |
-| service_name | The service, usually repo name | `true` |  |
-| environment_name | Environment name can be (production, staging, development, gamma-XXX) | `true` |  |
-| terraform_tag_list | A comma-separated list of desired tags | `true` |  |
-| terraform_path | Location of terraform files in this repo | `true` | terraform |
-| terraform_token | Terraform Cloud Token | `true` |  |
+| SERVICE_NAME | The service, usually repo name | `true` |  |
+| ENVIRONMENT_NAME | Environment name can be (production, staging, development, gamma-XXX) | `true` |  |
+| TERRAFORM_TAG_LIST | A comma-separated list of desired tags | `true` |  |
+| TERRAFORM_PATH | Location of terraform files in this repo | `true` | terraform |
+| TERRAFORM_TOKEN | Terraform Cloud Token | `true` |  |
+| TERRAFORM_VAR_PATH | A path to .tfvars file. | `false` |  |
 
 
 

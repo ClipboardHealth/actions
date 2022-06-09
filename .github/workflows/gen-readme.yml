@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        action: ["terraform"]
+        action_path: ["terraform"]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -17,21 +17,21 @@ jobs:
 
       - uses: npalm/action-docs-action@v1.1.0
         with:
-          readme: ".github/actions/${{ matrix.action }}/README.md"
-          actionFile: ".github/actions/${{ matrix.action }}/action.yml"
+          readme: ".github/actions/${{ matrix.action_path }}/README.md"
+          actionFile: ".github/actions/${{ matrix.action_path }}/action.yml"
 
       - id: check-readme
         run: |
-          DIFF=$(git diff --exit-code --name-only .github/actions/terraform/README.md)
+          DIFF=$(git diff --name-only .github/actions/terraform/README.md)
           CHANGED=$([ "${DIFF}" = "" ] && echo false || echo true)
           echo "::set-output name=changed::${CHANGED}"
 
-      - name: Commit ${{ matrix.action }} README.md
+      - name: Commit ${{ matrix.action_path }} README.md
         if: steps.check-readme.outputs.changed == 'true'
-        working-directory: .github/actions/${{ matrix.action }}
+        working-directory: .github/actions/${{ matrix.action_path }}
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git add README.md
-          git commit -m "doc: update ${{ matrix.action }} action README.md"
+          git commit -m "doc: update ${{ matrix.action_path }} action README.md"
           git push

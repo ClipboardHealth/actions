@@ -1,10 +1,9 @@
 name: Test terraform action
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
+    paths:
+      - .github/actions/terraform
+      - .github/workflows/test-action-terraform.yml
 
 jobs:
   exec_action:
@@ -15,11 +14,12 @@ jobs:
       - name: Create a terraform workspace
         uses: ./.github/actions/terraform
         with:
-          service_name: "tmp-cbh-test-terraform-creation"
-          environment_name: "branch-${{ github.event.pull_request.head.ref }}"
-          terraform_tag_list: "pipeline,temporary,must-be-erased"
-          terraform_path: ".github/actions/terraform/test/terraform"
-          terraform_token: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
+          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}"
+          TERRAFORM_TAG_LIST: "pipeline,temporary,must-be-erased"
+          TERRAFORM_PATH: ".github/actions/terraform/test/terraform"
+          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          TERRAFORM_VAR_PATH: ".github/actions/terraform/test/terraform/test.tfvars"
 
       - name: Destroy test resources from workspace
         working-directory: .github/actions/terraform/test/terraform
