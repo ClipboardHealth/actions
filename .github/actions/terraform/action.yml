@@ -49,7 +49,6 @@ runs:
         TERRAFORM_TAG_LIST: ${{ inputs.TERRAFORM_TAG_LIST }}
       run: ${{ github.action_path }}/create-tfc-workspace.sh
 
-    - uses: actions/checkout@v3
     - uses: hashicorp/setup-terraform@v1
       with:
         cli_config_credentials_token: ${{ inputs.TERRAFORM_TOKEN }}
