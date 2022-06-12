@@ -83,7 +83,7 @@ resource "aws_ecs_service" "main" {
   capacity_provider_strategy {
     base              = 0
     capacity_provider = "FARGATE"
-    weight            = 0
+    weight            = 1
   }
 
   lifecycle {
