@@ -24,14 +24,14 @@ resource "aws_ecs_task_definition" "main" {
   family                   = local.app_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "10"
-  memory                   = "56"
+  cpu                      = 10
+  memory                   = 56
 
   container_definitions = jsonencode([
     {
       essential = true
-      cpu       = "10"
-      memory    = "56"
+      cpu       = 10
+      memory    = 56
       image     = "nginx:stable-alpine"
       name      = local.app_name
       portMappings = [
