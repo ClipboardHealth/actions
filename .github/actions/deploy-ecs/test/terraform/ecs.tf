@@ -30,8 +30,8 @@ resource "aws_ecs_task_definition" "main" {
   container_definitions = jsonencode([
     {
       essential = true
-      cpu       = 10
-      memory    = 56
+      cpu       = "10"
+      memory    = "56"
       image     = "nginx:stable-alpine"
       name      = local.app_name
       portMappings = [
