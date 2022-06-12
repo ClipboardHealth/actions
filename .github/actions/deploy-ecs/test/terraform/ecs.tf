@@ -53,7 +53,7 @@ resource "aws_ecs_task_definition" "main" {
 resource "aws_ecs_service" "main" {
   name          = local.app_name
   cluster       = data.terraform_remote_state.ecs.outputs.cluster_name
-  desired_count = 0
+  desired_count = 1
 
   network_configuration {
     subnets          = data.terraform_remote_state.networking.outputs.subnets_private
@@ -84,7 +84,8 @@ resource "aws_ecs_service" "main" {
     ignore_changes = [
       desired_count,
       load_balancer,
-      task_definition
+      task_definition,
+      capacity_provider_strategy
     ]
   }
 }
