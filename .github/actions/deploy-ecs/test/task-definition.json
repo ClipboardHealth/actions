@@ -4,8 +4,8 @@
   "requiresCompatibilities": [
     "FARGATE"
   ],
-  "cpu": "100",
-  "memory": "128",
+  "cpu": "256",
+  "memory": "512",
   "containerDefinitions": [
     {
       "name": "tmp-cbh-test-deploy-ecs",
