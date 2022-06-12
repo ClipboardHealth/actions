@@ -9,7 +9,7 @@
           "PlatformVersion": "LATEST"
         },
         "LoadBalancerInfo": {
-          "ContainerName": "actions-cicd-ecs-deploy-test",
+          "ContainerName": "tmp-cbh-test-deploy-ecs",
           "ContainerPort": 80
         }
       }
