@@ -30,7 +30,7 @@ runs:
   steps:
     - shell: sh
       env:
-        FULL_SERVICE_NAME: cbh-${{ inputs.SERVICE_NAME }}-${{ inputs.ENVIRONMENT }}
+        FULL_SERVICE_NAME: ${{ inputs.SERVICE_NAME }}-${{ inputs.ENVIRONMENT }}
       run: echo "APPLICATION_NAME=${FULL_SERVICE_NAME}" >> $GITHUB_ENV
 
     - name: Configure AWS credentials
@@ -44,7 +44,7 @@ runs:
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ${{ inputs.TASK_DEFINITION_PATH }}
-        container-name: ${{ env.APPLICATION_NAME }}
+        container-name: ${{ inputs.SERVICE_NAME }}
         image: ${{ inputs.IMAGE_NAME }}
 
     - name: Deploy to Amazon ECS
