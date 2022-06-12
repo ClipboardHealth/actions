@@ -80,12 +80,17 @@ resource "aws_ecs_service" "main" {
     type = "CODE_DEPLOY"
   }
 
+  capacity_provider_strategy {
+    base              = 0
+    capacity_provider = "FARGATE"
+    weight            = 0
+  }
+
   lifecycle {
     ignore_changes = [
       desired_count,
       load_balancer,
-      task_definition,
-      capacity_provider_strategy
+      task_definition
     ]
   }
 }
