@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Create a terraform workspace
+      - name: Create terraform workspace and apply
         uses: ./.github/actions/terraform
         with:
           SERVICE_NAME: ${{ env.SERVICE_NAME }}

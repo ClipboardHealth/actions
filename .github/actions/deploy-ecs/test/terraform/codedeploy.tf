@@ -1,6 +1,10 @@
 resource "aws_codedeploy_app" "main" {
   compute_platform = "ECS"
   name             = local.app_name
+
+  depends_on = [
+    aws_ecs_service.main
+  ]
 }
 
 resource "aws_codedeploy_deployment_group" "main" {
