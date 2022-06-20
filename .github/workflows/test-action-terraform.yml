@@ -5,20 +5,26 @@ on:
       - .github/actions/terraform
       - .github/workflows/test-action-terraform.yml
 
+env:
+  SERVICE_NAME: "tmp-cbh-test-terraform-creation"
+  TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+
 jobs:
   exec_action_plan_only:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-plan_only"
     steps:
       - uses: actions/checkout@v3
 
       - name: Create a terraform workspace
         uses: ./.github/actions/terraform
         with:
-          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
-          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-plan_only"
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
           TERRAFORM_TAG_LIST: "pipeline,temporary,must-be-erased"
           TERRAFORM_PATH: ".github/actions/terraform/test/terraform"
-          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          TERRAFORM_TOKEN: ${{ env.TERRAFORM_TOKEN }}
           TERRAFORM_VAR_PATH: ".github/actions/terraform/test/terraform/test.tfvars"
           PLAN_ONLY: true
 
@@ -28,23 +34,25 @@ jobs:
 
       - name: Destroy previously created terraform workspace
         env:
-          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
-          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-plan_only"
-          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
+          TERRAFORM_TOKEN: ${{ env.TERRAFORM_TOKEN }}
         run: .github/actions/terraform/destroy-tfc-workspace.sh
   exec_action_apply:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-apply"
     steps:
       - uses: actions/checkout@v3
 
       - name: Create a terraform workspace
         uses: ./.github/actions/terraform
         with:
-          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
-          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-apply"
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
           TERRAFORM_TAG_LIST: "pipeline,temporary,must-be-erased"
           TERRAFORM_PATH: ".github/actions/terraform/test/terraform"
-          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          TERRAFORM_TOKEN: ${{ env.TERRAFORM_TOKEN }}
           TERRAFORM_VAR_PATH: ".github/actions/terraform/test/terraform/test.tfvars"
           PLAN_ONLY: false
 
@@ -54,7 +62,7 @@ jobs:
 
       - name: Destroy previously created terraform workspace
         env:
-          SERVICE_NAME: "tmp-cbh-test-terraform-creation"
-          ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-apply"
-          TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
+          ENVIRONMENT_NAME: ${{ env.ENVIRONMENT_NAME }}
+          TERRAFORM_TOKEN: ${{ env.TERRAFORM_TOKEN }}
         run: .github/actions/terraform/destroy-tfc-workspace.sh
