@@ -21,6 +21,10 @@ inputs:
     description: "A path to .tfvars file."
     default: ""
     required: false
+  PLAN_ONLY:
+    type: boolean
+    default: false
+    required: false
 
 runs:
   using: "composite"
@@ -84,8 +88,15 @@ runs:
       id: validate
       run: terraform validate -no-color
 
+    - name: Terraform plan
+      shell: sh
+      if: inputs.PLAN_ONLY
+      working-directory: ${{ inputs.TERRAFORM_PATH }}
+      run: terraform plan -input=false
+
     - name: Terraform apply
       shell: sh
+      if: ! inputs.PLAN_ONLY
       working-directory: ${{ inputs.TERRAFORM_PATH }}
       run: terraform apply --auto-approve
 
