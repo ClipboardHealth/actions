@@ -5,15 +5,17 @@ on:
       - .github/actions/terraform
       - .github/workflows/test-action-terraform.yml
 
+concurrency: pull_request
+
 env:
-  SERVICE_NAME: "tmp-cbh-test-terraform-creation"
+  SERVICE_NAME: "tmp_terraform_github_action"
   TERRAFORM_TOKEN: ${{ secrets.TERRAFORM_CLOUD_TOKEN }}
 
 jobs:
   exec_action_plan_only:
     runs-on: ubuntu-latest
     env:
-      ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-plan_only"
+      ENVIRONMENT_NAME: "pull_request-plan_only"
     steps:
       - uses: actions/checkout@v3
 
@@ -41,7 +43,7 @@ jobs:
   exec_action_apply:
     runs-on: ubuntu-latest
     env:
-      ENVIRONMENT_NAME: "branch-${{ github.event.pull_request.head.ref }}-apply"
+      ENVIRONMENT_NAME: "pull_request-apply"
     steps:
       - uses: actions/checkout@v3
 
