@@ -19,6 +19,7 @@ Creates terraform workspace
 | TERRAFORM_PATH | Location of terraform files in this repo | `true` | terraform |
 | TERRAFORM_TOKEN | Terraform Cloud Token | `true` |  |
 | TERRAFORM_VAR_PATH | A path to .tfvars file. | `false` |  |
+| PLAN_ONLY | undefined | `false` |  |
 
 
 
