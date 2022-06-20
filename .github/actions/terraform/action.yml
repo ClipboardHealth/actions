@@ -96,7 +96,7 @@ runs:
 
     - name: Terraform apply
       shell: sh
-      if: ! inputs.PLAN_ONLY
+      if: ${{ ! inputs.PLAN_ONLY }}
       working-directory: ${{ inputs.TERRAFORM_PATH }}
       run: terraform apply --auto-approve
 
