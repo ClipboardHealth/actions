@@ -22,6 +22,7 @@ inputs:
     default: ""
     required: false
   PLAN_ONLY:
+    description: "Should only run Terraform plan, without applying?"
     type: boolean
     default: false
     required: false
